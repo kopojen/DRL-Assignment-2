@@ -371,23 +371,26 @@ patterns = [
 approximator = NTupleApproximator(board_size=4, patterns=patterns)
 approximator.load("./8_6tuple_alpha0_ep24000.pkl")
 
-def get_action(state, score):
+def get_action(state, score, approximator):
     env = Game2048Env()
+    env.board = copy.deepcopy(state)
+    env.score = score
+
     legal_moves = [a for a in range(4) if env.is_move_legal(a)]
 
     best_value = float('-inf')
     best_action = None
+
     for a in legal_moves:
         env_copy = copy.deepcopy(env)
         _, sim_score, _, info = env_copy.step(a)
         after_state = info["after"]
-        val = (sim_score - previous_score) + 0.99 * approximator.value(after_state)
+        val = (sim_score - score) + 0.99 * approximator.value(after_state)
         if val > best_value:
             best_value = val
             best_action = a
-    action = best_action
-    
-    return action
+
+    return best_action
     # return random.choice([0, 1, 2, 3]) # Choose a random action
     
     # You can submit this random agent to evaluate the performance of a purely random strategy.
