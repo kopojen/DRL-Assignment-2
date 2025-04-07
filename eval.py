@@ -14,6 +14,7 @@ import random
 import sys
 import importlib
 import env
+from student_agent import NTupleApproximator
 
 
 
