@@ -357,29 +357,35 @@ class NTupleApproximator:
 
         print(f"Weights loaded from {path}")
 
+
+patterns = [
+    [(0, 0), (0, 1), (0, 2), (1, 0), (1, 1), (1, 2)],
+    [(0, 1), (0, 2), (1, 1), (1, 2), (2, 1), (3, 1)],
+    [(0, 0), (0, 1), (0, 2), (0, 3), (1, 0), (1, 1)],
+    [(0, 0), (0, 1), (1, 1), (1, 2), (1, 3), (2, 2)],
+    [(0, 0), (0, 1), (0, 2), (1, 1), (2, 1), (2, 2)],
+    [(0, 0), (0, 1), (1, 1), (2, 1), (3, 1), (3, 2)],
+    [(0, 0), (0, 1), (1, 1), (2, 1), (3, 1), (2, 0)],
+    [(0, 0), (1, 0), (0, 1), (0, 2), (1, 2), (2, 2)]
+]
 approximator = NTupleApproximator(board_size=4, patterns=patterns)
 approximator.load("./8_6tuple_alpha0_ep24000.pkl")
 
 def get_action(state, score):
     env = Game2048Env()
     legal_moves = [a for a in range(4) if env.is_move_legal(a)]
-    if not legal_moves:
-        break
 
-    if random.random() < epsilon:
-        action = random.choice(legal_moves)
-    else:
-        best_value = float('-inf')
-        best_action = None
-        for a in legal_moves:
-            env_copy = copy.deepcopy(env)
-            _, sim_score, _, info = env_copy.step(a)
-            after_state = info["after"]
-            val = (sim_score - previous_score) + 0.99 * approximator.value(after_state)
-            if val > best_value:
-                best_value = val
-                best_action = a
-        action = best_action
+    best_value = float('-inf')
+    best_action = None
+    for a in legal_moves:
+        env_copy = copy.deepcopy(env)
+        _, sim_score, _, info = env_copy.step(a)
+        after_state = info["after"]
+        val = (sim_score - previous_score) + 0.99 * approximator.value(after_state)
+        if val > best_value:
+            best_value = val
+            best_action = a
+    action = best_action
     
     return action
     # return random.choice([0, 1, 2, 3]) # Choose a random action
