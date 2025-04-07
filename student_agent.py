@@ -9,6 +9,7 @@ import copy
 import random
 import math
 from Ntuple import NTupleApproximator
+import gc
 
 
 class Game2048Env(gym.Env):
@@ -233,7 +234,7 @@ class Game2048Env(gym.Env):
         # If the simulated board is different from the current board, the move is legal
         return not np.array_equal(self.board, temp_board)
 
-
+approximator = None  # 全域變數
 patterns = [
     [(0, 0), (0, 1), (0, 2), (1, 0), (1, 1), (1, 2)],
     [(0, 1), (0, 2), (1, 1), (1, 2), (2, 1), (3, 1)],
@@ -244,11 +245,23 @@ patterns = [
     [(0, 0), (0, 1), (1, 1), (2, 1), (3, 1), (2, 0)],
     [(0, 0), (1, 0), (0, 1), (0, 2), (1, 2), (2, 2)]
 ]
-approximator = NTupleApproximator(board_size=4, patterns=patterns)
-with open("8_6tuple_alpha0_ep24000.pkl", "rb") as f:
-    approximator = pickle.load(f)
+
+def init_model():
+    global approximator
+    if approximator is None:
+        gc.collect()
+        try:
+            import torch
+            torch.cuda.empty_cache()
+        except:
+            pass
+        with open("8_6tuple_alpha0_ep24000.pkl", "rb") as f:
+            approximator = pickle.load(f)
+        print("Weights loaded from 8_6tuple_alpha0_ep24000.pkl")
 
 def get_action(state, score):
+    init_model()
+
     env = Game2048Env()
     env.board = copy.deepcopy(state)
     env.score = score
@@ -268,8 +281,3 @@ def get_action(state, score):
             best_action = a
 
     return best_action
-    # return random.choice([0, 1, 2, 3]) # Choose a random action
-    
-    # You can submit this random agent to evaluate the performance of a purely random strategy.
-
-

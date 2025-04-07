@@ -15,13 +15,10 @@ import sys
 import importlib
 import env
 from Ntuple import NTupleApproximator
-
+from student_agent import init_model
+import gc
 
 
 if __name__ == "__main__":
-    env.eval_score()  
-    
-
-
-
-    
+    init_model()
+    env.eval_score()
