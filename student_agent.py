@@ -472,9 +472,9 @@ def init_model():
             torch.cuda.empty_cache()
         except:
             pass
-        with open("../restart_0.5/8_6tuple_alpha0_ep1000.pkl", "rb") as f:
+        with open("8_6tuple_alpha0.5.pkl", "rb") as f:
             approximator = pickle.load(f)
-        print("Weights loaded from ../restart_0.5/8_6tuple_alpha0_ep1000.pkl")
+        print("Weights loaded from 8_6tuple_alpha0.5.pkl")
 
 # MCTS + TD
 def get_action(state, score):
